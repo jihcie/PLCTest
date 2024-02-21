@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_GateValve" Id="{62dfd8e4-3bd9-44a4-8fb2-5421e3124c21}">
+    <Declaration><![CDATA[TYPE ST_GateValve :
+STRUCT
+	biSnGateValve_Close:BOOL;
+	biSnGateValve_Open:BOOL;
+	boCylGateValve_Close:BOOL;
+	boCylGateValve_Open:BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

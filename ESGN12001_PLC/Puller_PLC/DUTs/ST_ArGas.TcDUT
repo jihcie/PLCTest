@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_ArGas" Id="{23f4a8e3-e0f2-4086-b74b-f61e59bc43b5}">
+    <Declaration><![CDATA[TYPE ST_ArGas :
+STRUCT
+	boAr1_OPen:BOOL;
+	boAr2_OPen:BOOL;
+	boAr3_Open:BOOL;
+	nAr1FlowValva:INT;
+	nAr2FlowValva:INT;
+	nAr3FlowValva:INT;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

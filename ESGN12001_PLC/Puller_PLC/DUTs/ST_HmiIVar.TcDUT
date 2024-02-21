@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_HmiIVar" Id="{af88af31-5f27-4dde-b7f4-b0fa7bef5b1a}">
+    <Declaration><![CDATA[TYPE ST_HmiIVar :
+STRUCT
+	bApsOnBtn:BOOL;
+	bApsOnLamp:BOOL;//12
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

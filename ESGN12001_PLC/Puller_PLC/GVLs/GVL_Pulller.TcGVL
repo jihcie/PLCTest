@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_Pulller" Id="{7f52076a-5d9b-499f-ae2c-ec67f47f7f9e}">
+    <Declaration><![CDATA[//{attribute 'qualified_only'}
+VAR_GLOBAL
+	stArGas:ST_ArGas;
+	stIngotPrevent:ST_IngotPrevent;
+	stPressureMeasure:ST_PressureMeasure;
+	stPumpSys:ST_PumpSys;
+	stGateValve:St_GateValve;
+	stHmiVar:ST_HmiIVar;
+	stSystemVar:St_SystemVar;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

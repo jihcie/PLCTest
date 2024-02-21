@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_PumpSys" Id="{76a01237-9bde-407b-bbc2-fa3de8110861}">
+    <Declaration><![CDATA[TYPE ST_PumpSys :
+STRUCT
+	boAuxPump_On:BOOL;
+	boAuxPump_Off:BOOL;
+	boAuxPumpValve_On:BOOL;
+	boMainPump_On:BOOL;
+	boMainPump_Off:BOOL;
+	boMainPumpValve_On:BOOL;
+	boMainPumpValve_Off:BOOL;
+	biMainPumpErr:BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_APS_Data" Id="{cccb8083-5dee-44f6-bcf6-559438e50f2a}">
+    <Declaration><![CDATA[TYPE ST_APS_Data :
+STRUCT	
+	bArPurgeProcessStart:BOOL;
+	bArPurgeProcessing:BOOL;
+	nAr1PurgeFlow:INT;
+	nArPurgeSetCount:INT:=3;
+	nArPurgeCurrentCount:INT;
+	nUpperPressureSet:INT:=1000;
+	nLowerPressureSet:INT:=50;
+	nCurrentPressure:INT;
+	nPull_MainGapPressureSet:INT;
+	nStepNo:INT;
+	tStepDelayTime:ton;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_APS_Prog" Id="{00842176-471d-45e6-a4fc-68e6d75a09e6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_APS_Prog
+VAR_INPUT
+	ApsFunctionEnable:BOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_stAPSData:ST_APS_Data;	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF ApsFunctionEnable THEN
+{region"APS启动"}
+//APS工艺流程启动
+	IF stGateValve.biSnGateValve_Close
+	AND stHmiVar.bApsOnBtn 
+	AND stSystemVar.bNoProcessStu 
+	AND NOT _stAPSData.bArPurgeProcessing THEN
+		_stAPSData.bArPurgeProcessStart:=TRUE;		
+	END_IF
+		 
+//APS工艺流程中...
+	IF _stAPSData.bArPurgeProcessStart THEN
+		_stAPSData.bArPurgeProcessing:=TRUE;
+		_stAPSData.bArPurgeProcessStart:=FALSE;
+		_stAPSData.nStepNo:=10;
+	END_IF
+{endregion}
+	 
+{region"APS自动流程"}
+//APS自动清扫流程启动
+	CASE _stAPSData.nStepNo OF
+		10://APS启动初始化（AUX真空泵开启,Ar1流量设定）
+			 stPumpSys.boAuxPumpValve_On:=FALSE;
+			 stPumpSys.boAuxPump_On:=TRUE;
+			 stArGas.nAr1FlowValva:=_stAPSData.nAr1PurgeFlow;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#5S );
+			IF _stAPSData.tStepDelayTime.Q THEN 
+				_stAPSData.nStepNo:=30;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF
+		(*20://AUX真空泵开启
+			stPumpSys.boAuxPump_On:=TRUE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#5S );
+			IF _stAPSData.tStepDelayTime.Q THEN 
+				_stAPSData.nStepNo:=30;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF*)
+		30://AUX真空阀门开启
+			stPumpSys.boAuxPumpValve_On:=TRUE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#2S );
+			IF _stAPSData.tStepDelayTime.Q  THEN 
+				_stAPSData.nStepNo:=40;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF	
+		40://真空压力达到下限值
+			IF stPressureMeasure.fiPullChumberVac < _stAPSData.nLowerPressureSet THEN 
+				_stAPSData.nStepNo:=50;
+			END_IF	
+		50://AUX真空阀关闭
+			stPumpSys.boAuxPumpValve_On:=FALSE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#1S );
+			IF _stAPSData.tStepDelayTime.Q  THEN
+				IF _stAPSData.nArPurgeSetCount=0 THEN
+				_stAPSData.nStepNo:=120;
+				ELSE
+				_stAPSData.nStepNo:=60;	 
+				END_IF 
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF
+		60://Ar1阀门开启
+			stArGas.boAr1_OPen:=TRUE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#1S );
+			IF _stAPSData.tStepDelayTime.Q  THEN 
+				_stAPSData.nStepNo:=70;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF
+		70://真空压力值达到上限
+			IF stPressureMeasure.fiPullChumberVac> _stAPSData.nUpperPressureSet THEN 
+				_stAPSData.nStepNo:=80;
+			END_IF		 
+		80://Ar1阀门关闭
+			stArGas.boAr1_OPen:=FALSE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#1S );
+			IF _stAPSData.tStepDelayTime.Q  THEN 
+				_stAPSData.nStepNo:=90;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF	
+		90://AUX真空阀门开启
+			stPumpSys.boAuxPumpValve_On:=TRUE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#2S );
+			IF _stAPSData.tStepDelayTime.Q  THEN 
+				_stAPSData.nStepNo:=100;
+				_stAPSData.tStepDelayTime(IN:=FALSE );
+			END_IF	
+		
+		100://真空压力达到下限值
+			IF stPressureMeasure.fiPullChumberVac <= _stAPSData.nLowerPressureSet THEN 	
+				_stAPSData.nStepNo:=110;
+			END_IF				 
+		110://AUX真空阀关闭
+			stPumpSys.boAuxPumpValve_On:=FALSE;
+			_stAPSData.tStepDelayTime(IN:=TRUE , PT:=T#1S );
+			IF _stAPSData.tStepDelayTime.Q  THEN
+				_stAPSData.nArPurgeCurrentCount:=_stAPSData.nArPurgeCurrentCount+1;
+				IF _stAPSData.nArPurgeCurrentCount>= _stAPSData.nArPurgeSetCount THEN
+					_stAPSData.nStepNo:=120;
+				ELSE
+					_stAPSData.nStepNo:=60;	 
+				END_IF					 
+			END_IF
+		120://APS自动流程结束
+			_stAPSData.bArPurgeProcessStart:=FALSE;
+			_stAPSData.bArPurgeProcessing:=FALSE;
+			_stAPSData.nArPurgeCurrentCount:=0;
+			_stAPSData.nStepNo:=0;	
+			stPumpSys.boAuxPump_On:=FALSE;
+	END_CASE
+
+{endregion}	
+END_IF
+
+//APS系统流程关闭
+IF stGateValve.biSnGateValve_Open
+	OR NOT stSystemVar.bNoProcessStu 
+	OR NOT ApsFunctionEnable THEN
+		_stAPSData.bArPurgeProcessStart:=FALSE;
+		_stAPSData.bArPurgeProcessing:=FALSE;
+		_stAPSData.nArPurgeCurrentCount:=0;
+		_stAPSData.nStepNo:=0;
+END_IF
+	]]></ST>
+    </Implementation>
+    <LineIds Name="FB_APS_Prog">
+      <LineId Id="9" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="52" Count="2" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="60" Count="2" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="77" Count="1" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="180" Count="3" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="99" Count="5" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="113" Count="5" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="176" Count="2" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="160" Count="1" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
