@@ -27,10 +27,16 @@
     <Compile Include="DUTs\01_炉体单元\ST_PullCharmber.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_ArGas.TcDUT">
+    <Compile Include="DUTs\02_真空压力单元\ST_ArGas.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_BackBlowSys.TcDUT">
+    <Compile Include="DUTs\02_真空压力单元\ST_BackBlowSys.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\02_真空压力单元\ST_PressureMeasure.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\02_真空压力单元\ST_PumpSys.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ST_CrucibleLiftSys.TcDUT">
@@ -60,12 +66,6 @@
     <Compile Include="DUTs\ST_TempMeasure.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_PressureMeasure.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\ST_PumpSys.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\ST_GateValve.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -88,6 +88,7 @@
   <ItemGroup>
     <Folder Include="DUTs" />
     <Folder Include="DUTs\01_炉体单元" />
+    <Folder Include="DUTs\02_真空压力单元" />
     <Folder Include="GVLs" />
     <Folder Include="POUs\FB_APS_Prog" />
     <Folder Include="VISUs" />
